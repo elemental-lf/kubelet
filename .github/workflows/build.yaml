@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v1.*'
+
+jobs:
+  cancel:
+    name: "Cancel previous workflow runs"
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          workflow_id: build.yaml
+          access_token: ${{ github.token }}
+
+  build_container_image:
+    name: "Build and publish kubelet container image"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository files
+        uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CONTAINER_REGISTRY_PAT }}
+
+      - name: Determine build information
+        id: gather_info
+        shell: bash
+        run: |
+          set -ueo pipefail
+
+          tag="${GITHUB_REF#refs/tags/}"
+          echo "::debug::Setting tag to ${tag}"
+          echo "::set-output name=tag::${tag}"
+
+      - name: Build and push kubelet container image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile.amd64
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/kubelet:${{ steps.gather_info.tag }}
