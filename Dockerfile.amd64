@@ -11,7 +11,7 @@ RUN apk add curl && \
   tar xzf node.tar.gz kubernetes/node/bin/kubectl kubernetes/node/bin/kubelet
 
 
-FROM us.gcr.io/k8s-artifacts-prod/build-image/debian-iptables:bullseye-v1.1.0
+FROM us.gcr.io/k8s-artifacts-prod/build-image/debian-iptables:bullseye-v1.3.0
 LABEL maintainer="Lars Fenneberg <lf@elemental.net>"
 
 RUN clean-install \
