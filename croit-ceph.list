@@ -1,1 +1,0 @@
-deb [signed-by=/etc/apt/trusted.gpg.d/croit-mirror.gpg] https://mirror.croit.io/debian-pacific/ bullseye main
